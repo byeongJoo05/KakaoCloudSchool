@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>테이블 XML</title>
+        <style>
+            baseball{
+                display: table;
+                border-collapse: separate;
+            }
+
+            data{
+                display: table-row-group;
+            }
+
+            team, director{
+                display: table-cell;
+                border: 3px double black;
+                padding: 10px;
+                border-spacing: 5px;
+            }
+        </style>
+    </head>
+    <body>
+        <baseball>
+            <data>
+                <team>삼성</team>
+                <director>박진만</director>
+            </data>
+            <data>
+                <team>기아</team>
+                <director>김종국</director>
+            </data>
+            <data>
+                <team>두산</team>
+                <director>이승엽</director>
+            </data>
+        </baseball>
+    </body>
+</html>
