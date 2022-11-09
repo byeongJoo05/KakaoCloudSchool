@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String Problem 221109</title>
+    <script>
+        // 브루트포스
+        var str = "CGCCGDKSKDGCCGCCGDKDGCCGDS";
+        var target = "GCCG";
+        var indexList = [];
+
+        for(var i = 0 ; i<str.length-4; i++) {
+            if(target == str.slice(i,i+4)) {
+                indexList.push(i);
+                i+=target.length
+            }
+        }
+        console.log(indexList);
+
+        //KMP 알고리즘으로 풀 수 있는지 여쭤보기.
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
