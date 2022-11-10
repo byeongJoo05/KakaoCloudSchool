@@ -7,19 +7,36 @@
     <title>String Problem 221109</title>
     <script>
         // 브루트포스
+        // 1번 풀이
         var str = "CGCCGDKSKDGCCGCCGDKDGCCGDS";
         var target = "GCCG";
         var indexList = [];
 
+        // for(var i = 0 ; i<str.length-4; i++) {
+        //     if(target == str.slice(i,i+4)) {
+        //         indexList.push(i);
+        //         i+=target.length;
+        //     }
+        // }
+        // console.log(indexList);
+
+        // 2번 풀이
         for(var i = 0 ; i<str.length-4; i++) {
-            if(target == str.slice(i,i+4)) {
+            var patternG='';            
+            var etcStr="";
+            patternG = str.charAt(i);
+            if (patternG !== 'G') {
+                continue;
+            }
+            for (j = i+1 ; j< i+target.length ; j++){
+                etcStr +=str.charAt(j);
+            }
+            if(target == (patternG+etcStr)) {
                 indexList.push(i);
-                i+=target.length
+                i+=target.length;
             }
         }
         console.log(indexList);
-
-        //KMP 알고리즘으로 풀 수 있는지 여쭤보기.
     </script>
 </head>
 <body>
