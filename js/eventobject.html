@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 객체의 내용</title>
+</head>
+<body>
+    <p id="paragraph">문단 태그</p>
+    <button id="btn">버튼</button>
+    <script>
+        document.getElementById("paragraph").addEventListener("click",
+        (e)=>{
+            for(attr in e){
+                console.log(attr +":"+ e[attr]);
+            }
+        });
+
+        document.getElementById("btn").addEventListener("click", (e)=>{
+            // 문단 태그의 클릭이 발생하도록 강제로 이벤트 발생시키기
+            document.getElementById("paragraph").click();
+
+        })
+    </script>
+    <!-- action 은 처리할 서버의 URL 
+    method는 요청 방식 - get, post -->
+    <form action="loginprocessing" method="post" id="loginform">
+        <p id="msg"></p>
+        <p>
+            아이디<input type="text" name="id" id="id" />
+        </p>
+        <p id="pwmsg">최소 8 자 이상 최대 16 자 이하 하나 이상의 대문자, 하나의 소문자, 하나의 숫자 및 하나의 특수 문자(@$!%*?&)로 만들어주세요.</p>
+        <p>
+            비밀번호<input type="password" name="pw" id="pw"/>
+        </p>
+        <br/>
+        <p id="pwcheckmsg"></p>
+        <p>
+            비밀번호 확인<input type="password" name="pwc" id="pwc"/>
+        </p>
+        <button id="pwbtn">비밀번호 확인</button>
+        <br/> <br/>
+        <input type="submit" value="로그인" />
+    </form>
+
+    <h1 id="outer">
+        <span id="inner">인라인 태그</span>
+    </h1>
+    <script>
+        document.getElementById("outer").addEventListener("click", (e) => {
+            alert("Outer 클릭");
+        });
+
+        document.getElementById("inner").addEventListener("click", (e) =>{
+            alert("Inner 클릭");
+            //버블링 막기
+            e.stopPropagation();
+        })
+
+
+
+
+
+
+        document.getElementById("loginform").addEventListener("submit",
+        (e)=>{
+
+            //아이디 입력란 찾아오기
+            if(document.getElementById("id").value.trim().length === 0){
+                document.getElementById("msg").innerHTML =
+                "아이디는 필수 입력입니다.";
+                document.getElementById("msg").style.color = "Red";
+                //기본 이벤트를 제거해서 서버에 전송하지 않도록 하기
+                e.preventDefault();
+            }
+
+            //비밀번호 null인지 체크
+            var reg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+            if(document.getElementById("pw").value.trim().length ===0){
+                document.getElementById("pwmsg").innerHTML =
+                "비밀번호는 필수 입력입니다.";
+                document.getElementById("pwmsg").style.color = "Red";
+                console.log("찍혀?");
+                e.preventDefault();
+            }
+            //비밀번호 정규표현식에 맞게 했는지 체크
+            else if(!reg.test(document.getElementById("pw").value)) {
+                document.getElementById("pwmsg").innerHTML = "패스워드 형식에 맞지 않습니다.";
+                document.getElementById("pwmsg").style.color = "Red";
+                e.preventDefault();
+            }
+
+        });
+
+        //패스워드 일치 확인하는 것
+        document.getElementById("pwbtn").addEventListener("click", (e)=>{
+                if (document.getElementById("pw").value !== document.getElementById("pwc").value){
+                    document.getElementById("pwcheckmsg").innerHTML =
+                    "비밀번호가 다릅니다.";
+                    document.getElementById("pwcheckmsg").style.color = "Red";
+                    e.preventDefault();
+                }
+                if ((document.getElementById("pw").value === document.getElementById("pwc").value) && document.getElementById("pw").value.trim().length !==0){
+                    document.getElementById("pwcheckmsg").innerHTML =
+                    "비밀번호가 일치합니다.";
+                    document.getElementById("pwcheckmsg").style.color = "Blue";
+                    e.preventDefault();
+                }
+            });
+
+        
+        //비밀번호가 비어있으면 전송이 안되도록 작성
+        //비밀번호 확인란을 만들어서 비밀번호 와 확인란이 맞지 않으면 전송이 안되도록 작성
+        //비밀번호의 패턴이 맞지 않으면 전송이 되지 않도록 작성하기
+        //비밀번호의 패턴을 보고 강한 비밀번호 인지 아닌지 판별 - 세번째 주석과 같이할 수는 없음.
+    </script>
+</body>
+</html>
