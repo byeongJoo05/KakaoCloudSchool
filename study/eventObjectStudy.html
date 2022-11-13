@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 객체의 내용</title>
+</head>
+<body>
+    <form action="loginprocessing" method="post" id="loginform">
+        <p id="idMsg"></p>
+        <p>
+            아이디<input type="text" name="id" id="id" />
+        </p>
+        <p id="pwMsg">최소 8 자 이상 최대 16 자 이하 하나 이상의 대문자, 하나의 소문자, 하나의 숫자 및 하나의 특수 문자(@$!%*?&)로 만들어주세요.</p>
+        <p id="pwCountMsg">비밀번호는 세 번 틀리시면 로그인 불가능 합니다. </p>
+        <p>
+            비밀번호<input type="password" name="pw" id="pw"/>
+            <button id="pwTxtBtn">보여주기</button>
+        </p>
+        <br/>
+        <p id="pwcMsg"></p>
+        <p>
+        비밀번호 재입력<input type="password" name="pwc" id="pwc"/>
+        <button id="pwBtn">비밀번호 확인</button>
+        </p>
+        <br/> <br/>
+        <input type="submit" value="로그인" />
+    </form>
+
+    <script>
+        /**
+         * study 내용
+         * 내가 입력한 pw가 text로 보이게 하는 버튼 - 완료
+         * 아이디 형식은 이메일로 변경 - 완료
+         * 비밀번호 사용 횟수 제한 - 완료
+         **/
+
+        let id = document.getElementById("id");
+        let pw = document.getElementById("pw");
+        let idMsg = document.getElementById("idMsg");
+        let pwMsg = document.getElementById("pwMsg");
+        let pwc = document.getElementById("pwc");
+        let pwcMsg = document.getElementById("pwcMsg");
+        let pwCountMsg = document.getElementById("pwCountMsg");
+        let pwCount = 3;
+
+        document.getElementById("loginform").addEventListener("submit",
+        (e)=>{
+            if (pwCount <= 1){
+                alert("비밀번호를 세 번 틀리셨기에 로그인이 불가능하십니다!!!!");
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            else {
+
+            let idReg = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+            //아이디 입력란 찾아오기
+            if(id.value.trim().length === 0){
+                idMsg.innerHTML =
+                "아이디는 필수 입력입니다.";
+                idMsg.style.color = "Red";
+                //기본 이벤트를 제거해서 서버에 전송하지 않도록 하기
+                e.preventDefault();
+            }
+            // 아이디 정규표현식에 맞게 했는지 체크
+            else if(!idReg.test(id.value)) {
+                idMsg.innerHTML = "id는 이메일 형식으로 입력해주세요.";
+                idMsg.style.color = "Red";
+                e.preventDefault();
+            }
+
+            //비밀번호 null인지 체크
+            let pwReg = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+            if(pw.value.trim().length ===0){
+                pwMsg.innerHTML =
+                "비밀번호는 필수 입력입니다.";
+                pwMsg.style.color = "Red";
+
+                pwCount--;
+                pwCountMsg.innerHTML=("현재까지 "+pwCount+"번의 기회가 남으셨습니다.");
+                pwCountMsg.style.color = "Red";
+                e.preventDefault();
+            }
+            //비밀번호 정규표현식에 맞게 했는지 체크
+            else if(!pwReg.test(pw.value)) {
+                pwMsg.innerHTML = "패스워드 형식에 맞지 않습니다.";
+                pwMsg.style.color = "Red";
+
+                pwCount--;
+                pwCountMsg.innerHTML=("현재까지 "+pwCount+"번의 기회가 남으셨습니다.");
+                pwCountMsg.style.color = "Red";
+                e.preventDefault();
+            }
+        }
+        });
+
+        // 비밀번호 보여주기 & 감추기 기능
+        document.getElementById("pwTxtBtn").addEventListener("click", (e)=>{
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (pw.type == "password") {
+                    pw.type = "text";
+                    pwTxtBtn.innerHTML = "감추기";
+                }
+                else {
+                    pw.type = "password";
+                    pwTxtBtn.innerHTML = "보여주기";
+                };
+        });
+
+        //패스워드 일치 확인하는 것
+        document.getElementById("pwBtn").addEventListener("click", (e)=>{
+                e.preventDefault();
+                e.stopPropagation();
+            
+                if (pw.value !== pwc.value){
+                    pwcMsg.innerHTML =
+                    "비밀번호가 다릅니다.";
+                    pwcMsg.style.color = "Red";
+                }
+                if ((pw.value === pwc.value) && pw.value.trim().length !==0){
+                    pwcMsg.innerHTML =
+                    "비밀번호가 일치합니다.";
+                    pwcMsg.style.color = "Blue";
+                }
+            });
+
+        
+        //비밀번호가 비어있으면 전송이 안되도록 작성
+        //비밀번호 확인란을 만들어서 비밀번호 와 확인란이 맞지 않으면 전송이 안되도록 작성
+        //비밀번호의 패턴이 맞지 않으면 전송이 되지 않도록 작성하기
+        //비밀번호의 패턴을 보고 강한 비밀번호 인지 아닌지 판별 - 세번째 주석과 같이할 수는 없음.
+    </script>
+</body>
+</html>
