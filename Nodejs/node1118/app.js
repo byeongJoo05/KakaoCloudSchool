@@ -10,6 +10,7 @@ dotenv.config();
 const app = express();
 app.set('port', process.env.PORT);
 
+
 //로그 출력
 const morgan = require('morgan');
 app.use(morgan('dev'));
@@ -30,10 +31,10 @@ app. 요청처리 메소드(url, (req, res) =>{
 
     // 응답
     //서버랜더링을 함
-    // send(직접 출력 내용 작성)
-    // sendFile(html 파일 경로)
+    // res.send(직접 출력 내용 작성)
+    // res.sendFile(html 파일 경로)
 
-    // json(JSON 데이터) - 서버 랜더링을 하지 않음(서버에서 화면 만들기를 안하겠다는 뜻)
+    // res.json(JSON 데이터) - 서버 랜더링을 하지 않음(서버에서 화면 만들기를 안하겠다는 뜻)
 });
 */
 
@@ -86,21 +87,46 @@ const upload = multer({
 })
 
 //포트번호(localhost:3000 -> ContextPath) 까지 요청 처리
+/*
 app.get('/', (req,res) => {
     res.sendFile(path.join(__dirname, './index.html'));
 });
+*/
 
-// 하나의 파일 업로드 처리
-app.get('/single', (req,res)=>{
-    res.sendFile(path.join(__dirname, '/single.html'));
+const indexRouter = require('./routes/index');
+const userRouter = require('./routes/user');
+const boardRouter = require('./routes/board');
+
+// url 과 매핑
+//라우터 파일의 내용을 가져오기
+// app.use("/", indexRouter); // / 요청은 indexRouter에서 처리
+
+//pug 설정
+//res.render로 출력할 때 사용할 디렉토리를 설정
+app.set('views', path.join(__dirname, 'views'));
+// 템플릿 엔진은 pug를 사용하겠다고 설정
+app.set('view engine', 'pug');
+
+app.use("/", (req,res)=> {
+    //템플릿 엔진으로 출력
+    //views/index.html로 출력
+    res.render('index', {'title': 'Pug', 'aespa':['카리나', '지젤', '윈터']})
 });
 
-app.post('/single', upload.single('image'), (req, res) => {
-    //title 파라미터 읽기
-    //post 방식에서의 파라미터는 req.body.파라미터이름
-    console.log(req.body.title);
-    console.log(req.file.originalname);
-    res.send('성공');
+app.use('/user',userRouter); // /user 가 앞에 있는 것은 userRouter에서 처리
+app.use('/board', boardRouter); // /board 가 앞에 있는 것은 boardRouter에서 처리
+
+// 하나의 파일 업로드 처리
+app.get('/multi', (req,res)=>{
+    res.sendFile(path.join(__dirname, '/multi.html'));
+});
+
+app.post('/multi', upload.single('image'), (req, res) => {
+    // res.send('성공');
+
+    // node에서 json 전송
+    let result = {"result":"success"};
+    res.json(result);
 
 });
 

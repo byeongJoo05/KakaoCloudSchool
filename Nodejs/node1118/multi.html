@@ -19,16 +19,20 @@
             const formData = new FormData();
             // 내용 추가
             let files = document.getElementById("image").files;
-            for(let idx=0; idx<file.length; idx++) {
+            for(let idx=0; idx<files.length; idx++) {
                 formData.append('image', document.getElementById("image").files[idx]);
             }
             formData.append('title', document.getElementById('title').value);
             //ajax를 이용해서 전송
             let xhr = new XMLHttpRequest();
-            xhr.open('GET', "/multi", true);
+            xhr.open('POST', "/multi", true);
             xhr.send(formData);
             xhr.addEventListener('load', (e) => {
-                alert('성공');
+                // 서버가 JSON 문자열을 파싱
+                let text = xhr.responseText;
+                let result = JSON.parse(text);
+                // 파싱한 결과를 출력
+                alert(result.result);
             })
         })
     </script>
