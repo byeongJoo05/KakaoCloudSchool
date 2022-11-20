@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2주차 미션 - Kakao Map 과 공공데이터 API 이용해보기</title>
+</head>
+<body>
+    <!-- 
+        작성에 앞서 본인은 서울시 공공자전거 대여소 정보와 카카오 Map API를 사용하려고 한다.
+        입력값에 찾고 싶은 구 (중구, 마포구 등) 를 작성하여 출력 버튼을 누르면 구에 맞춰 대여소 위치를 찍어 주려고 한다.
+     -->
+
+     <p>서울시에 있는 구를 적어주시면, 입력한 구의 따릉이 대여소를 알려드립니다!</p>
+     <input type="text" id="cityName"/>
+     <button id="btn">보여주기</button>
+     <br/>
+     <br/>
+     <div id="map" style="width:500px;height:350px;"></div>
+
+
+
+
+     <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=카카오API 값"></script>
+     
+     
+     <script>
+    //구 이름과 버튼 호출을 위한 변수
+    let cityName = document.getElementById("cityName");
+    let btn = document.getElementById("btn");
+    
+    const Maps = (obj) => {
+     var mapContainer = document.getElementById('map'), // 지도를 표시할 div  
+         mapOption = { 
+            //이 친구는 어케하면 유동적으로 변하게 할 수 있을까?
+             center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+             level: 10 // 지도의 확대 레벨
+         };
+     
+     var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+      
+     // 마커를 표시할 위치와 title 객체 배열입니다.
+     // 따릉이 타이틀과 위치가 찍혀야할 위치
+     // 정적이 아니라 동적으로 되어야 함.
+     // 위치 정보 저장
+     
+    
+    let positions = obj.map(item => ({
+    title: item.RENT_NM,
+    latlng: new kakao.maps.LatLng(item.STA_LAT, item.STA_LONG),
+    }))
+    
+     
+     // 마커 이미지의 이미지 주소입니다
+     var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+         
+     for (var i = 0; i < positions.length; i ++) {
+         
+         // 마커 이미지의 이미지 크기 입니다
+         var imageSize = new kakao.maps.Size(24, 35); 
+         
+         // 마커 이미지를 생성합니다    
+         var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+         
+         // 마커를 생성합니다
+         // 따릉이와 이용하기 위하여 포지션, 타이틀은 따릉이 걸로 바꿔주자.
+         var marker = new kakao.maps.Marker({
+             map: map, // 마커를 표시할 지도
+             position: positions[i].latlng, // 마커를 표시할 위치
+             title : positions[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+             image : markerImage // 마커 이미지 
+         });
+     }
+    }
+
+    // 따릉이 대여소 데이터 받기
+    const getData = async (city) => {
+    let res = await fetch(`http://openapi.seoul.go.kr:8088/공공데이터 API값/json/tbCycleStationInfo/1/100/`)
+    let data = await res.json()
+    let rows = data.stationInfo.row
+    let arr = [];
+    // 내가 고른 구만 정보 받아오기
+    // json을 전체 다 받아서 하고 싶었는데 일단 받아올 수 있는 양이 정해져 있고, 받은 데이터도 한글순정렬이 아니여서 그런지 좀 애매함.
+    for (let i = 0 ; i < rows.length ; i++){
+        if (rows[i].STA_LOC === city) {
+            arr.push(rows[i]);
+        }
+    }
+    Maps(arr) // 대여소 위치데이터를 카카오 마커를 보여주는 함수에 전달
+    }   
+
+    btn.addEventListener("click", ()=>{
+        getData(cityName.value)
+    })
+     </script>
+
+
+</body>
+</html>
