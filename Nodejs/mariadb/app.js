@@ -88,6 +88,7 @@ app.use('/', express.static('public'));
 // 파일 다운로드를 위한 모듈
 let util = require('util');
 let mime = require('mime');
+const { connect } = require('http2');
 
 // 데이터베이스 연결
 let connection = mysql.createConnection(options);
@@ -168,14 +169,182 @@ app.get('/item/list', (req,res)=>{
 
     //파라미터는 무조건 문자열임.
     //파라미터를 가지고 산술연산을 할 때는 정수로 변환해야함.
+
+    // 성공 과 실패 여부를 저장
+    let result = true;
+    // 성공했을 때 데이터를 저장
+    let list;
+    // 데이터 목록 가져오기
     connection.query(
         "select * from goods order by itemid desc limit ?, 5", [(parseInt(pageno)-1)*5], (err,results, fields)=> {
             if(err) {
                 console.log(err);
-                res.json({"result":false});
+                result = false;
             } else {
-                res.json({"result":true, "list":results});
+                list = results;
             }
+
+            // goods 테이블의 전체 데이터 개수를 가져오기
+            // select count(*) from goods
+            let cnt = 0;
+            connection.query("select count(*) cnt from goods",
+                [], (err, results, fields)=> {
+                if (err) {
+                    //에러가 발생했을 때
+                    console.log(err);
+                    result = false;
+                } else{
+                    //정상적으로 구문이 실행되었을 때
+                    //하나의 행만 리턴되므로 0 번째 데이터를 읽어내면 됨.
+                    cnt = results[0].cnt;
+                }
+
+                // 응답 생성해서 전송
+                if (result === false) {
+                    res.json({"result":false});
+                } else {
+                    res.json({"result":true, "list":list, "count":cnt});
+                }
+                });
+            });
+});
+
+// 상세보기 처리를 위한 코드
+app.get('/item/detail/:itemid', (req,res)=>{
+    //파라미터 읽기
+    let itemid = req.params.itemid;
+    //itemid를 이용해서 1개의 데이터를 찾아오는 SQL을 실행
+    connection.query("select * from goods where itemid=?", [itemid], (err, results, fields) => {
+        if(err) {
+            console.log(err);
+            res.json({"result":false});
+        } else {
+            console.log(results);
+            res.json({"result":true, "item":results[0]});
+        }
+    });
+});
+
+//이미지 다운로드 처리
+app.get('/img/:pictureurl', (req,res)=> {
+    let pictureurl = req.params.pictureurl;
+    //이미지 파일의 절대경로를 생성
+    let file = "C:\\Users\\user\\Documents\\KakaoCloudSchool\\Nodejs\\mariadb\\public\\img"
+        +"/" + pictureurl;
+        console.log(__dirname);
+        //파일 이름을 가지고 타입을 생성
+        let mimetype = mime.lookup(pictureurl);
+        res.setHeader('Content-disposition',
+            'attachment; filename=' + pictureurl);
+        res.setHeader('Content-type', mimetype);
+        //파일의 내용을 읽어서 res에 전송
+        let filestream = fs.createReadStream(file);
+        filestream.pipe(res);
+});
+
+// 현재 날짜를 문자열로 리턴하는 함수
+// 요즈음 등장하는 자바스크립트 라이브러리들의 샘플 예제는
+// 특별한 경우가 아니면 function 을 사용하지 않음.
+const getDate = () => {
+    let date = new Date();
+
+    let year = date.getFullYear();
+    // 월은 +1을 해야 우리가 사용하는 월이 됨.
+    let month = date.getMonth() +1;
+    let day = date.getDate();
+
+    month = month >=10 ? month : '0' + month;
+    day = day >= 10 ? day : '0' + day;
+
+    return year + "-" + month + "-" + day;
+}
+
+// 날짜와 시간을 리턴하는 함수
+const getTime = () => {
+    let date = new Date();
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
+
+    hour >= 10 ? hour : '0' + hour;
+    minute >= 10 ? minute : '0' + minute;
+    second >= 10 ? second : '0' + second;
+
+    return getDate() + " " + hour + ":" + minute + ":" + second;
+}
+
+// 데이터 삽입을 처리해주는 함수
+app.post('/item/insert', upload.single('pictureurl'), 
+    (req, res) => {
+        //파라미터 읽어오기
+        const itemname = req.body.itemname;
+        const description = req.body.description;
+        const price = req.body.price;
+
+        //파일 이름 - 업로드 하는 파일이 없으면 default.jpg
+        let pictureurl;
+        if(req.file) {
+            pictureurl = req.file.filename
+        } else {
+            pictureurl = 'default.jpg';
+        }
+
+        //가장 큰 itemid 찾기
+        connection.query("select max(itemid) maxid from goods",
+        [], (err, results, fields) => {
+            let itemid;
+            // 최대값이 있으면 + 1 하고 없으면 1로 설정
+            if(results.length > 0) {
+                itemid = results[0].maxid + 1;
+            } else {
+                itemid = 1;
+            }
+
+            connection.query("insert into goods(" +
+                "itemid, itemname, price, description, pictureurl, updatedate) values(?, ?, ?, ?, ?, ?)",
+                [itemid, itemname, price, description, pictureurl, getDate()], (err, results, fields) => {
+                    if(err) {
+                        console.log(err);
+                        res.json({"result":false});
+                    } else {
+                        // 현재 날짜 및 시간을 update.txt에 기록
+                        const writeStream = fs.createWriteStream('./update.txt');
+                        writeStream.write(getTime());
+                        writeStream.end();
+
+                        res.json({"result":true});
+                    }
+                })
+        });
+    });
+
+//데이터를 삭제하는 함수
+app.post('/item/delete', (req,res)=> {
+    //post 방식으로 전송된 데이터 읽기
+    let itemid = req.body.itemid;
+
+    //itemid를 받아서 goods 테이블에서 삭제하기
+    connection.query("delete from goods where itemid=?", 
+    [itemid], (err, results, fields)=> {
+        if(err) {
+            console.log(err);
+            res.json({"result":false});
+        }else{
+            // 현재 날짜 및 시간을 update.txt에 기록
+            const writeStream = fs.createWriteStream('./update.txt');
+            writeStream.write(getTime());
+            writeStream.end();
+            
+            res.json({"result":true});
+        }
+    });
+});
+
+//수정을 get으로 요청했을 때 - 수정 화면으로 이동
+app.get('/item/update', (req, res) => {
+    //public 디렉토리의 update.html을 읽어내서 리턴
+    fs.readFile('./public/update.html', (err,data)=> {
+        res.end(data);
     });
 });
 
