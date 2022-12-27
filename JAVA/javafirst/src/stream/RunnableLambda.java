@@ -1,4 +1,4 @@
-package network;
+package stream;
 
 public class RunnableLambda {
     public static void main(String[] args) {
