@@ -11,4 +11,7 @@ import com.kakao.itstudy.domain.ItemEntity;
 public interface ItemMapper {
 	@Select("select * from item")
 	public List<ItemEntity> allItem();
+	
+	@Select("select * from item where itemid=#{itemid}")
+	public ItemEntity getItem(int itemid); // #부분에 파라미터 값이 들어감
 }

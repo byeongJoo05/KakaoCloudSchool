@@ -7,6 +7,18 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
+	
+	<!-- 메시지 출력을 위한 디렉토리 설정 -->
+	<beans:bean id="messageSource"
+	class="org.springframework.context.support.ResourceBundleMessageSource">
+		<beans:property name="basenames">
+			<beans:list>
+				<beans:value>message/label</beans:value>
+				<beans:value>message/validation</beans:value>
+			</beans:list>
+		</beans:property>
+	
+	</beans:bean>
 	<default-servlet-handler/>
 
 	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
@@ -25,7 +37,22 @@
 	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="prefix" value="/WEB-INF/views/" />
 		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="1" />
 	</beans:bean>
+	
+	<!-- Controller에서 넘겨준 뷰 이름을 가지고 뷰를 선택하도록 설정 -->
+	<beans:bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<beans:property name="order" value="0" />
+	</beans:bean>
+	
+	<!-- excel 요청이 왔을 때 ExcelView로 출력하도록 설정 -->
+	<beans:bean id="excel" class="com.kakao.itstudy.view.ExcelView" />
+	
+	<!-- pdf 요청이 왔을 때 PdfView로 출력하도록 설정 -->
+	<beans:bean id="pdf" class="com.kakao.itstudy.view.PdfView" />
+	
+	<!-- json 뷰로 출력 -->
+	<beans:bean id="itemlist" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"/>
 	
 	<!-- 어노테이션을 사용했을 때 bean을 자동생성해주는 패키지 설정 -->
 	<context:component-scan base-package="com.kakao.itstudy" />
