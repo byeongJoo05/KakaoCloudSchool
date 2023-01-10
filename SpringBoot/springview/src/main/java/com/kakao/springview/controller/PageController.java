@@ -47,7 +47,7 @@ public class PageController {
     @GetMapping("/ex2")
     public void ex2(Model model) {
         List<SampleVO> list = IntStream.rangeClosed(1, 20).asLongStream().mapToObj(
-                i-> {
+                i -> {
                     SampleVO vo = SampleVO.builder()
                             .sno(i)
                             .first("First.." + i)
@@ -59,5 +59,25 @@ public class PageController {
                 }
         ).collect(Collectors.toList());
         model.addAttribute("list", list);
+    }
+
+    @GetMapping({"/exlink", "/exformat"})
+    public void exlink(Model model) {
+        List<SampleVO> list = new ArrayList<>();
+        for (long i = 0; i < 10; i++) {
+            SampleVO vo = SampleVO.builder()
+                    .sno(i)
+                    .first("First..." + i)
+                    .last("Last..." + i)
+                    .regTime(LocalDateTime.now())
+                    .build();
+            list.add(vo);
+        }
+        model.addAttribute("list", list);
+    }
+
+    @GetMapping("/exlayout1")
+    public void exlayout() {
+
     }
 }
