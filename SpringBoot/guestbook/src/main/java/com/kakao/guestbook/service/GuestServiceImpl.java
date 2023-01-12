@@ -22,6 +22,7 @@ import java.util.function.Function;
 public class GuestServiceImpl implements GuestBookService{
     private final GuestBookRepository guestBookRepository;
 
+
     @Override
     public Long register(GuestBookDTO dto) {
         // 파라미터가 제대로 넘어오는지 확인
