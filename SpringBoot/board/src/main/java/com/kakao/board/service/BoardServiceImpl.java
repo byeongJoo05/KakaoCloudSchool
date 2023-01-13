@@ -39,9 +39,17 @@ public class BoardServiceImpl implements BoardService{
         // Entity를 DTO로 변경하는 람다 인스턴스 생성
         Function<Object[], BoardDTO> fn = (en-> entityToDTO((Board) en[0], (Member) en[1], (Long) en[2]));
 
-        // 목록 보기 요청 처리
+/*
+        // 목록 보기 요청 처리 - 검색 적용 안된
         Page<Object[]> result = boardRepository.getBoardWithReplyCount(
                 pageRequestDTO.getPageable(Sort.by("bno").descending()));
+*/
+        // 검색이 적용된 메서드 호출
+        Page<Object[]> result = boardRepository.searchPage(
+                pageRequestDTO.getType(),
+                pageRequestDTO.getKeyword(),
+                pageRequestDTO.getPageable(Sort.by("bno").descending())
+        );
 
         return new PageResponseDTO<>(result, fn);
     }

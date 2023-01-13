@@ -85,7 +85,7 @@ public class RepositoryTest {
     @Transactional
     // 게시글 1개를 가져오는 메서드
     public void readBoard() {
-            Optional<Board> result = boardRepository.findById(100L);
+            Optional<Board> result = boardRepository.findById(1L);
         Board board = result.get();
         System.out.println(board);
         System.out.println(board.getWriter());
@@ -94,7 +94,7 @@ public class RepositoryTest {
     @Test
     // 댓글 1개를 가져오는 메서드
     public void readReply() {
-        Optional<Reply> result = replyRepository.findById(100L);
+        Optional<Reply> result = replyRepository.findById(1L);
         Reply reply = result.get();
         System.out.println(reply);
         System.out.println(reply.getBoard());
@@ -132,5 +132,32 @@ public class RepositoryTest {
             Long c = (Long) ar[2];
             System.out.println(c);
         });
+    }
+
+    @Test
+    public void testSearch1() {
+        boardRepository.search1();
+    }
+
+    // 검색 테스트
+    @Test
+    public void testSearch() {
+        Pageable pageable = PageRequest.of(0,10,
+                Sort.by("bno").descending()
+                        .and(Sort.by("title").ascending()));
+        // title 또는 content 에 안녕이 포함된 데이터 조회
+        Page<Object[]> result = boardRepository.searchPage("t", "1", pageable);
+        for (Object[] row : result.getContent()) {
+            System.out.println(Arrays.toString(row));
+        }
+    }
+
+    // 댓글을 가져오는 메서드 확인
+    @Test
+    public void testListReply() {
+        List<Reply> replyList = replyRepository.findByBoardOrderByRno(
+                Board.builder().bno(27L).build()
+        );
+        replyList.forEach(reply -> System.out.println(reply));
     }
 }
