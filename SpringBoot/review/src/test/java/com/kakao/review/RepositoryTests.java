@@ -8,15 +8,19 @@ import com.kakao.review.persistence.MemberRepository;
 import com.kakao.review.persistence.MovieImageRepository;
 import com.kakao.review.persistence.MovieRepository;
 import com.kakao.review.persistence.ReviewRepository;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Commit;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -97,5 +101,42 @@ public class RepositoryTests {
         for (Object[] objects : result.getContent()) {
             System.out.println(Arrays.toString(objects));
         }
+    }
+
+    @Test
+    public void detailTest() {
+        List<Object[]> list = movieRepository.getMovieWithAll(3L);
+        for (Object[] objects : list) {
+            System.out.println(Arrays.toString(objects));
+        }
+    }
+
+    @Test
+//    @Transactional
+    public void getReviews() {
+        Movie movie = Movie.builder()
+                .mno(3L)
+                .build();
+
+        List<Review> result = reviewRepository.findByMovie(movie);
+        result.forEach(review -> {
+            System.out.println(review);
+            System.out.println(review.getMember().getEmail());
+        });
+    }
+
+    @Test
+    @Transactional
+    @Commit
+    public void deleteByMember() {
+        Member member = Member.builder().mid(89L).build();
+        reviewRepository.deleteByMember(member);
+    }
+
+    @Test
+    @Transactional
+    @Commit
+    public void updateByMember() {
+        reviewRepository.updateByMember(58L);
     }
 }

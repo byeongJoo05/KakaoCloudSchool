@@ -11,7 +11,6 @@ import lombok.*;
 @ToString(exclude = "movie") // toString을 할 때 movie는 제외
 // 지연 생성이기 때문에 get을 하지 않은 상태에서 toString을 호출하면
 // NullPointerException 이 발생
-
 @Embeddable // 부모 테이블을 만들 때 이 속성의 값을 포함시켜 생성
 public class MovieImage{
     @Id
