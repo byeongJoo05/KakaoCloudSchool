@@ -139,4 +139,5 @@ public class RepositoryTests {
     public void updateByMember() {
         reviewRepository.updateByMember(58L);
     }
+
 }
