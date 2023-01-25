@@ -1,10 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-회원만 볼 수 있는 페이지
-</body>
+<h1>For Member ....................</h1>
+<div sec:authorize="hasRole('USER')">Has USER ROLE</div>
+<div sec:authorize="hasRole('ADMIN')">Has ADMIN ROLE</div>
+<div sec:authorize="isAuthenticated()"> 로그인 성공한 유저에게만 보여지는 텍스트
+</div>
+Authenticated username:
+<div sec:authentication="name"></div> Authenticated user roles:
+<div sec:authentication="principal.authorities"> </div>
+<a href="/logout">로그아웃</a> </body>
+
+<script th:inline="javascript">
+    const auth = [[${#authentication.principal}]]
+    console.log(auth);
+    const errors = [[${errors}]]
+    console.log(errors);
+</script>
 </html>
